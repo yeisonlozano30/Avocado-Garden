@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Avocado Garden PRO 🥑</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI';
+  height:100vh;
+  overflow:hidden;
+
+  /* Fondo premium */
+  background: linear-gradient(to bottom, #f0fdf4 50%, transparent 50%);
+}
+
+/* FONDO AGUACATE */
+.fondo-aguacate{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:55%;
+
+  background-image:url('images.jfif');
+  background-size:cover;
+  background-position:center;
+  
+  filter: blur(3px) brightness(0.8);
+  z-index:-1;
+}
+
+/* LOGIN */
+#login{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background:rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.2);
+  text-align:center;
+  width:320px;
+}
+
+#login h2{
+  margin-bottom:15px;
+}
+
+#login input{
+  padding:10px;
+  margin:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  width:80%;
+}
+
+#login button{
+  padding:10px 20px;
+  background:#16a34a;
+  color:white;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+#login button:hover{
+  background:#15803d;
+  transform:scale(1.05);
+}
+
+/* MENU */
+aside{
+  width:260px;
+  background:#064e3b;
+  color:white;
+  height:100vh;
+  padding:20px;
+}
+
+aside button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+aside button:hover{
+  background:#16a34a;
+  transform:scale(1.05);
+}
+
+/* CONTENIDO */
+main{
+  margin-left:260px;
+  padding:20px;
+}
+
+/* TARJETAS */
+.card{
+  background:white;
+  padding:15px;
+  margin:10px 0;
+  border-radius:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 5px 10px rgba(0,0,0,0.1);
+}
+
+.card input{
+  width:70px;
+}
+
+.card button{
+  margin-left:5px;
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.total{
+  font-size:20px;
+  font-weight:bold;
+  margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="fondo-aguacate"></div>
+
+<div id="login">
+  <h2>🥑 Avocado Garden 🥑</h2>
+  <input id="user" placeholder="Usuariocate"><br>
+  <input id="pass" type="password" placeholder="Contraseñacate"><br>
+  <button onclick="login()">Ingresar</button>
+</div>
+
+<aside id="menu" style="display:none;">
+  <h3>🥑 Panel Principal 🥑</h3>
+  <p id="rol"></p>
+  <button onclick="show('home')">Inicio</button>
+  <button id="invBtn" onclick="show('inventory')">Inventario</button>
+  <button onclick="show('shop')">Tienda</button>
+  <button onclick="show('cart')">Carrito (<span id="cartCount">0</span>)</button>
+  <button onclick="logout()">Salir</button>
+</aside>
+
+<main id="content"></main>
+
+<script>
+let user = null;
+let inventory = JSON.parse(localStorage.getItem('inv')) || [];
+let cart = [];
+
+const users = [
+  {u:'admin',p:'123',r:'Administrador'},
+  {u:'jefe',p:'123',r:'Jefe'},
+  {u:'cliente',p:'123',r:'Cliente'}
+];
+
+function save(){
+  localStorage.setItem('inv', JSON.stringify(inventory));
+}
+
+function login(){
+  let u = document.getElementById('user').value;
+  let p = document.getElementById('pass').value;
+
+  if(!u || !p){
+    return alert('Completa todos los campos');
+  }
+
+  user = users.find(x => x.u === u && x.p === p);
+
+  if(user){
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('menu').style.display = 'block';
+    document.getElementById('rol').innerText = 'Rol: ' + user.r;
+
+    if(user.r === 'Cliente'){
+      document.getElementById('invBtn').style.display = 'none';
+    }
+
+    show('home');
+  } else {
+    alert('Usuario o contraseña incorrectos');
+  }
+}
+
+function logout(){
+  location.reload();
+}
+
+function show(view){
+  let c = document.getElementById('content');
+
+  if(view === 'home'){
+    c.innerHTML = '<h1>Bienvenido ' + user.r + ' 🥑🔥</h1>';
+  }
+
+  if(view === 'inventory' && user.r !== 'Cliente'){
+    c.innerHTML = `
+      <h2>Inventario</h2>
+      <input id="n" placeholder="Nombre">
+      <input id="p" type="number" placeholder="Precio">
+      <input id="s" type="number" placeholder="Stock">
+      <button onclick="addProduct()">Agregar</button>
+      <div id="inv"></div>
+    `;
+    renderInventory();
+  }
+
+  if(view === 'shop'){
+    c.innerHTML = '<h2>Tienda 🛒</h2><div id="shop"></div>';
+    renderShop();
+  }
+
+  if(view === 'cart'){
+    c.innerHTML = '<h2>Carrito</h2><div id="cart"></div><div class="total" id="total"></div>';
+    renderCart();
+  }
+}
+
+function addProduct(){
+  let n = document.getElementById('n').value;
+  let p = parseInt(document.getElementById('p').value);
+  let s = parseInt(document.getElementById('s').value);
+
+  if(!n || !p || !s){
+    return alert('Completa todos los campos');
+  }
+
+  inventory.push({id:Date.now(), name:n, price:p, stock:s});
+  save();
+  renderInventory();
+}
+
+function renderInventory(){
+  let div = document.getElementById('inv');
+  div.innerHTML = '';
+
+  inventory.forEach(p=>{
+    div.innerHTML += `
+    <div class="card">
+      ${p.name}
+      Precio: <input value="${p.price}" onchange="edit(${p.id},'price',this.value)">
+      Stock: <input value="${p.stock}" onchange="edit(${p.id},'stock',this.value)">
+      <button onclick="del(${p.id})">❌</button>
+    </div>`;
+  });
+}
+
+function edit(id, field, value){
+  let p = inventory.find(x=>x.id===id);
+  p[field] = parseInt(value);
+  save();
+}
+
+function del(id){
+  inventory = inventory.filter(p=>p.id!==id);
+  save();
+  renderInventory();
+}
+
+function renderShop(){
+  let div = document.getElementById('shop');
+  div.innerHTML = '';
+
+  inventory.forEach(p=>{
+    div.innerHTML += `
+    <div class="card">
+      ${p.name} - $${p.price}
+      <button onclick="addCart(${p.id})">Agregar</button>
+    </div>`;
+  });
+}
+
+function addCart(id){
+  let p = inventory.find(x=>x.id===id);
+  cart.push(p);
+  document.getElementById('cartCount').innerText = cart.length;
+}
+
+function renderCart(){
+  let div = document.getElementById('cart');
+  let total = 0;
+  div.innerHTML = '';
+
+  cart.forEach((p,i)=>{
+    total += p.price;
+    div.innerHTML += `
+    <div class="card">
+      ${p.name} - $${p.price}
+      <button onclick="removeCart(${i})">Quitar</button>
+    </div>`;
+  });
+
+  document.getElementById('total').innerText = 'Total: $' + total;
+}
+
+function removeCart(i){
+  cart.splice(i,1);
+  document.getElementById('cartCount').innerText = cart.length;
+  renderCart();
+}
+</script>
+
+</body>
+</html>
