@@ -10,28 +10,27 @@ body{
   font-family:'Segoe UI';
   height:100vh;
   overflow:hidden;
-
-  /* Fondo premium */
   background: linear-gradient(to bottom, #f0fdf4 50%, transparent 50%);
 }
 
-/* FONDO AGUACATE */
 .fondo-aguacate{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  height:55%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 
-  background-image:url('images.jfif');
+  background: 
+    linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+    url('avocado.jpg');
+
   background-size:cover;
-  background-position:center;
-  
-  filter: blur(3px) brightness(0.8);
-  z-index:-1;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  z-index: -1;
 }
 
-/* LOGIN */
 #login{
   position:absolute;
   top:50%;
@@ -44,10 +43,6 @@ body{
   box-shadow:0 15px 40px rgba(0,0,0,0.2);
   text-align:center;
   width:320px;
-}
-
-#login h2{
-  margin-bottom:15px;
 }
 
 #login input{
@@ -65,15 +60,8 @@ body{
   border:none;
   border-radius:10px;
   cursor:pointer;
-  transition:0.3s;
 }
 
-#login button:hover{
-  background:#15803d;
-  transform:scale(1.05);
-}
-
-/* MENU */
 aside{
   width:260px;
   background:#064e3b;
@@ -91,21 +79,13 @@ aside button{
   background:#22c55e;
   color:white;
   cursor:pointer;
-  transition:0.3s;
 }
 
-aside button:hover{
-  background:#16a34a;
-  transform:scale(1.05);
-}
-
-/* CONTENIDO */
 main{
   margin-left:260px;
   padding:20px;
 }
 
-/* TARJETAS */
 .card{
   background:white;
   padding:15px;
@@ -117,12 +97,7 @@ main{
   box-shadow:0 5px 10px rgba(0,0,0,0.1);
 }
 
-.card input{
-  width:70px;
-}
-
 .card button{
-  margin-left:5px;
   background:#16a34a;
   color:white;
   border:none;
@@ -143,29 +118,30 @@ main{
 
 <div class="fondo-aguacate"></div>
 
-<div id="login">
-  <h2>🥑 Avocado Garden 🥑</h2>
-  <input id="user" placeholder="Usuariocate"><br>
-  <input id="pass" type="password" placeholder="Contraseñacate"><br>
+<div id="login" style="display:none;">
+  <h2>🥑 Modo Admin 🥑</h2>
+  <input id="user" placeholder="Usuario"><br>
+  <input id="pass" type="password" placeholder="Contraseña"><br>
   <button onclick="login()">Ingresar</button>
 </div>
 
-<aside id="menu" style="display:none;">
-  <h3>🥑 Panel Principal 🥑</h3>
+<aside id="menu">
+  <h3>🥑 Panel 🥑</h3>
   <p id="rol"></p>
   <button onclick="show('home')">Inicio</button>
   <button id="invBtn" onclick="show('inventory')">Inventario</button>
   <button onclick="show('shop')">Tienda</button>
   <button onclick="show('cart')">Carrito (<span id="cartCount">0</span>)</button>
+  <button onclick="showLogin()">Modo Admin</button>
   <button onclick="logout()">Salir</button>
 </aside>
 
 <main id="content"></main>
 
 <script>
-let user = null;
+let user = JSON.parse(localStorage.getItem('user')) || {r:'Cliente'};
 let inventory = JSON.parse(localStorage.getItem('inv')) || [];
-let cart = [];
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 const users = [
   {u:'admin',p:'123',r:'Administrador'},
@@ -177,32 +153,64 @@ function save(){
   localStorage.setItem('inv', JSON.stringify(inventory));
 }
 
+function saveCart(){
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function saveUser(){
+  localStorage.setItem('user', JSON.stringify(user));
+}
+
+/* INICIO AUTOMÁTICO */
+window.onload = function(){
+  document.getElementById('menu').style.display = 'block';
+
+  if(user){
+    document.getElementById('rol').innerText = 'Modo: ' + user.r;
+  }
+
+  if(user.r === 'Cliente'){
+    document.getElementById('invBtn').style.display = 'none';
+  } else {
+    document.getElementById('invBtn').style.display = 'block';
+  }
+
+  document.getElementById('cartCount').innerText = cart.length;
+
+  show('shop');
+};
+
+function showLogin(){
+  document.getElementById('login').style.display = 'block';
+}
+
 function login(){
   let u = document.getElementById('user').value;
   let p = document.getElementById('pass').value;
 
-  if(!u || !p){
-    return alert('Completa todos los campos');
-  }
+  let found = users.find(x => x.u === u && x.p === p);
 
-  user = users.find(x => x.u === u && x.p === p);
+  if(found){
+    user = found;
+    saveUser();
 
-  if(user){
     document.getElementById('login').style.display = 'none';
-    document.getElementById('menu').style.display = 'block';
     document.getElementById('rol').innerText = 'Rol: ' + user.r;
 
     if(user.r === 'Cliente'){
       document.getElementById('invBtn').style.display = 'none';
+    } else {
+      document.getElementById('invBtn').style.display = 'block';
     }
 
     show('home');
   } else {
-    alert('Usuario o contraseña incorrectos');
+    alert('Credenciales incorrectas');
   }
 }
 
 function logout(){
+  localStorage.removeItem('user');
   location.reload();
 }
 
@@ -231,7 +239,12 @@ function show(view){
   }
 
   if(view === 'cart'){
-    c.innerHTML = '<h2>Carrito</h2><div id="cart"></div><div class="total" id="total"></div>';
+    c.innerHTML = `
+      <h2>Carrito</h2>
+      <div id="cart"></div>
+      <div class="total" id="total"></div>
+      <button onclick="checkout()">Comprar 🧾</button>
+    `;
     renderCart();
   }
 }
@@ -284,7 +297,7 @@ function renderShop(){
   inventory.forEach(p=>{
     div.innerHTML += `
     <div class="card">
-      ${p.name} - $${p.price}
+      ${p.name} - $${p.price} (Stock: ${p.stock})
       <button onclick="addCart(${p.id})">Agregar</button>
     </div>`;
   });
@@ -292,7 +305,13 @@ function renderShop(){
 
 function addCart(id){
   let p = inventory.find(x=>x.id===id);
+
+  if(p.stock <= 0){
+    return alert('Sin stock');
+  }
+
   cart.push(p);
+  saveCart();
   document.getElementById('cartCount').innerText = cart.length;
 }
 
@@ -315,8 +334,31 @@ function renderCart(){
 
 function removeCart(i){
   cart.splice(i,1);
+  saveCart();
   document.getElementById('cartCount').innerText = cart.length;
   renderCart();
+}
+
+function checkout(){
+  if(cart.length === 0){
+    return alert('Carrito vacío');
+  }
+
+  cart.forEach(item=>{
+    let p = inventory.find(x=>x.id === item.id);
+    if(p && p.stock > 0){
+      p.stock--;
+    }
+  });
+
+  save();
+  cart = [];
+  saveCart();
+
+  document.getElementById('cartCount').innerText = 0;
+
+  alert('Compra realizada 🧾🔥');
+  show('shop');
 }
 </script>
 
