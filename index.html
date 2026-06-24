@@ -2,210 +2,260 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>🥑 Avocado Garden 🥑</title>
+<title> Avocado Garden </title>
 
 <style>
-body{
+
+/* RESET */
+*{
   margin:0;
-  font-family:'Segoe UI';
-  height:100vh;
-  overflow:hidden;
-  background: linear-gradient(to bottom, #f0fdf4 50%, transparent 50%);
+  padding:0;
+  box-sizing:border-box;
 }
 
-.fondo-aguacate{
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
+/* FONDO */
+body{
+  font-family:'Segoe UI', sans-serif;
   background:
-    linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
-    url('avocado.jpg');
-
+    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    url('avocado.jpg') no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  z-index: -1;
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
-#login{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  background:rgba(255,255,255,0.85);
-  backdrop-filter: blur(10px);
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.2);
-  text-align:center;
-  width:320px;
-}
+#menuToggle{
+  position: fixed;
+  top:15px;
+  left:15px;
 
-#login input{
-  padding:10px;
-  margin:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  width:80%;
-}
+  width:75px;
+  height:75px;
 
-#login button{
-  padding:10px 20px;
-  background:#16a34a;
-  color:white;
-  border:none;
-  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+
+  border-radius:18px;
+
   cursor:pointer;
+  z-index:1000;
+
+  transition:0.3s;
 }
 
-aside{
-  width:260px;
-  background:#064e3b;
+#menuToggle:hover{
+  transform:scale(1.08);
+}
+
+/* 🔥 ICONO LIMPIO */
+#menuToggle img{
+  width:80px;
+  height:80px;
+  object-fit:contain;
+
+  /* 💀 ESTO QUITA FONDOS FEOS */
+  mix-blend-mode: multiply;
+
+  margin-bottom:5px;
+}
+
+/* TEXTO */
+#menuToggle p{
+  margin:0;
+  font-size:12px;
   color:white;
-  height:100vh;
-  padding:20px;
+}
+/* OVERLAY */
+#overlay{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  opacity:0;
+  visibility:hidden;
+  transition:0.3s;
+  z-index:998;
+}
+#overlay.active{
+  opacity:1;
+  visibility:visible;
 }
 
+/* SIDEBAR */
+aside{
+  position: fixed;
+  width:260px;
+  height:100vh;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(12px);
+  color:white;
+  padding:20px;
+  transform:translateX(-100%);
+  transition:0.3s;
+  z-index:999;
+  box-shadow:5px 0 20px rgba(0,0,0,0.4);
+}
+aside.active{
+  transform:translateX(0);
+}
+aside h3{ margin-bottom:10px; }
+aside p{
+  font-size:14px;
+  opacity:0.8;
+  margin-bottom:15px;
+}
 aside button{
   width:100%;
   padding:12px;
-  margin:6px 0;
+  margin:8px 0;
   border:none;
-  border-radius:8px;
-  background:#22c55e;
+  border-radius:12px;
+  background: rgba(255,255,255,0.08);
   color:white;
   cursor:pointer;
+  transition:0.3s;
+}
+aside button:hover{
+  background: linear-gradient(135deg,#2ecc71,#27ae60);
+  transform:translateX(5px);
 }
 
+/* CONTENIDO */
 main{
-  margin-left:260px;
+  margin-top:80px;
   padding:20px;
+  width:100%;
 }
 
+/* CARDS PRO */
 .card{
-  background:white;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
   padding:15px;
   margin:10px 0;
   border-radius:12px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 5px 10px rgba(0,0,0,0.1);
+  color:white;
+  box-shadow:0 5px 15px rgba(0,0,0,0.3);
 }
 
-.card button{
-  background:#16a34a;
+/* LOGIN  */
+#login{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
   color:white;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+#login input{
+  width:200px;
+  padding:10px;
+  margin:8px;
   border:none;
-  padding:6px 10px;
-  border-radius:6px;
+  border-radius:10px;
+}
+#login button{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  background:#27ae60;
+  color:white;
   cursor:pointer;
 }
 
-.total{
-  font-size:20px;
-  font-weight:bold;
-  margin-top:15px;
+/* ANIMACIÓN */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="fondo-aguacate"></div>
+<div id="overlay" onclick="toggleMenu()"></div>
 
-<div id="login" style="display:none;">
-  <h2>🥑 Modo Admin 🥑</h2>
-  <input id="user" placeholder="Usuario"><br>
-  <input id="pass" type="password" placeholder="Contraseña"><br>
-  <button onclick="login()">Ingresar</button>
+<div id="menuToggle" onclick="toggleMenu()">
+  <img src="icono.png" class="menu-icon">
+  <p>Menú</p>
 </div>
 
 <aside id="menu">
-  <h3>🥑 Panel 🥑</h3>
+  <h3>Contenido Garden</h3>
   <p id="rol"></p>
   <button onclick="show('home')">Inicio</button>
   <button id="invBtn" onclick="show('inventory')">Inventario</button>
   <button onclick="show('shop')">Tienda</button>
   <button onclick="show('cart')">Carrito (<span id="cartCount">0</span>)</button>
-  <button onclick="showLogin()">Modo Admin</button>
+  <button onclick="showLogin()">Admin</button>
   <button onclick="logout()">Salir</button>
 </aside>
+
+<div id="login" style="display:none;">
+  <h2>Login</h2>
+  <input id="userInput" placeholder="Usuario"><br>
+  <input id="pass" type="password" placeholder="Contraseña"><br>
+  <button onclick="login()">Entrar</button>
+</div>
 
 <main id="content"></main>
 
 <script>
+
 let user = JSON.parse(localStorage.getItem('user')) || {r:'Cliente'};
 let inventory = JSON.parse(localStorage.getItem('inv')) || [];
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 const users = [
   {u:'admin',p:'123',r:'Administrador'},
-  {u:'jefe',p:'123',r:'Jefe'},
   {u:'cliente',p:'123',r:'Cliente'}
 ];
 
-function save(){
-  localStorage.setItem('inv', JSON.stringify(inventory));
+function toggleMenu(){
+  menu.classList.toggle('active');
+  overlay.classList.toggle('active');
 }
 
-function saveCart(){
-  localStorage.setItem('cart', JSON.stringify(cart));
-}
+function save(){ localStorage.setItem('inv', JSON.stringify(inventory)); }
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); }
+function saveUser(){ localStorage.setItem('user', JSON.stringify(user)); }
 
-function saveUser(){
-  localStorage.setItem('user', JSON.stringify(user));
-}
-
-/* INICIO AUTOMÁTICO */
 window.onload = function(){
-  document.getElementById('menu').style.display = 'block';
-
-  if(user){
-    document.getElementById('rol').innerText = 'Modo: ' + user.r;
-  }
-
-  if(user.r === 'Cliente'){
-    document.getElementById('invBtn').style.display = 'none';
-  } else {
-    document.getElementById('invBtn').style.display = 'block';
-  }
-
-  document.getElementById('cartCount').innerText = cart.length;
-
-  show('shop');
+  rol.innerText = "Modo: " + user.r;
+  cartCount.innerText = cart.length;
+  invBtn.style.display = user.r === 'Cliente' ? 'none' : 'block';
+  show('home');
 };
 
-function showLogin(){
-  document.getElementById('login').style.display = 'block';
-}
+/* LOGIN */
+function showLogin(){ login.style.display='block'; }
 
 function login(){
-  let u = document.getElementById('user').value;
-  let p = document.getElementById('pass').value;
-
-  let found = users.find(x => x.u === u && x.p === p);
+  let u = userInput.value;
+  let p = pass.value;
+  let found = users.find(x=>x.u===u && x.p===p);
 
   if(found){
     user = found;
     saveUser();
-
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('rol').innerText = 'Rol: ' + user.r;
-
-    if(user.r === 'Cliente'){
-      document.getElementById('invBtn').style.display = 'none';
-    } else {
-      document.getElementById('invBtn').style.display = 'block';
-    }
-
-    show('home');
-  } else {
-    alert('Credenciales incorrectas');
+    location.reload();
+  }else{
+    alert('Error');
   }
 }
 
@@ -214,74 +264,117 @@ function logout(){
   location.reload();
 }
 
+/* VISTAS */
 function show(view){
-  let c = document.getElementById('content');
+  let c = content;
 
-  if(view === 'home'){
-    c.innerHTML = '<h1>Bienvenido ' + user.r + ' 🥑🔥</h1>';
-  }
+  
+   if(view==='home'){
+  c.innerHTML = `
+  <div style="
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:80vh;
+    width:100%;
+  ">
+    
+    <div style="
+      width:90%;
+      max-width:500px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(18px);
+      padding:40px;
+      border-radius:25px;
+      text-align:center;
+      animation:fadeIn 0.5s;
+      color:white;
+      box-shadow:0 15px 40px rgba(0,0,0,0.5);
+    ">
 
-  if(view === 'inventory' && user.r !== 'Cliente'){
+      <img src="icono.png" style="
+        width:200px;
+        height:200px;
+        object-fit:cover;
+        border-radius:20px;
+        margin-bottom:15px;
+      ">
+
+      <h1 style="font-size:28px;margin-bottom:10px;">
+         Avocado Garden
+      </h1>
+
+      <p style="opacity:0.8;font-size:16px;">
+        Bienvenido ${user.r}
+      </p>
+
+      <button onclick="show('shop')" style="
+        margin-top:20px;
+        padding:15px;
+        font-size:16px;
+        border:none;
+        border-radius:15px;
+        background:linear-gradient(135deg,#2ecc71,#27ae60);
+        color:white;
+        cursor:pointer;
+        width:100%;
+      ">
+        Ir a tienda 
+      </button>
+
+    </div>
+
+  </div>`;
+}
+
+  if(view==='inventory' && user.r!=='Cliente'){
     c.innerHTML = `
-      <h2>Inventario</h2>
-      <input id="n" placeholder="Nombre">
-      <input id="p" type="number" placeholder="Precio">
-      <input id="s" type="number" placeholder="Stock">
-      <button onclick="addProduct()">Agregar</button>
-      <div id="inv"></div>
-    `;
+    <h2 style="color:white;">Inventario</h2>
+    <input id="n" placeholder="Nombre">
+    <input id="p" type="number" placeholder="Precio">
+    <input id="s" type="number" placeholder="Stock">
+    <button onclick="addProduct()">Agregar</button>
+    <div id="inv"></div>`;
     renderInventory();
   }
 
-  if(view === 'shop'){
-    c.innerHTML = '<h2>Tienda 🛒</h2><div id="shop"></div>';
+  if(view==='shop'){
+    c.innerHTML = `<h2 style="color:white;">Tienda</h2><div id="shop"></div>`;
     renderShop();
   }
 
-  if(view === 'cart'){
+  if(view==='cart'){
     c.innerHTML = `
-      <h2>Carrito</h2>
-      <div id="cart"></div>
-      <div class="total" id="total"></div>
-      <button onclick="checkout()">Comprar 🧾</button>
-    `;
+    <h2 style="color:white;">Carrito</h2>
+    <div id="cart"></div>
+    <div class="total" id="totalDiv"></div>
+    <button onclick="checkout()">Comprar</button>`;
     renderCart();
   }
 }
 
+/* FUNCIONES */
 function addProduct(){
-  let n = document.getElementById('n').value;
-  let p = parseInt(document.getElementById('p').value);
-  let s = parseInt(document.getElementById('s').value);
+  let name = document.getElementById('n').value;
+  let price = parseInt(document.getElementById('p').value);
+  let stock = parseInt(document.getElementById('s').value);
 
-  if(!n || !p || !s){
-    return alert('Completa todos los campos');
-  }
+  if(!name || !price || !stock) return alert('Completa todo');
 
-  inventory.push({id:Date.now(), name:n, price:p, stock:s});
+  inventory.push({id:Date.now(), name, price, stock});
   save();
   renderInventory();
 }
 
 function renderInventory(){
-  let div = document.getElementById('inv');
-  div.innerHTML = '';
-
+  inv.innerHTML='';
   inventory.forEach(p=>{
-    div.innerHTML += `
+    inv.innerHTML+=`
     <div class="card">
-      ${p.name}
-      Precio: <input value="${p.price}" onchange="edit(${p.id},'price',this.value)">
-      Stock: <input value="${p.stock}" onchange="edit(${p.id},'stock',this.value)">
+      ${p.name} - $${p.price}
       <button onclick="del(${p.id})">❌</button>
     </div>`;
   });
-}
-
-function edit(id, field, value){
-  let p = inventory.find(x=>x.id===id);
-  p[field] = parseInt(value);
-  save();
 }
 
 function del(id){
@@ -291,13 +384,11 @@ function del(id){
 }
 
 function renderShop(){
-  let div = document.getElementById('shop');
-  div.innerHTML = '';
-
+  shop.innerHTML='';
   inventory.forEach(p=>{
-    div.innerHTML += `
+    shop.innerHTML+=`
     <div class="card">
-      ${p.name} - $${p.price} (Stock: ${p.stock})
+      ${p.name} - $${p.price}
       <button onclick="addCart(${p.id})">Agregar</button>
     </div>`;
   });
@@ -305,61 +396,42 @@ function renderShop(){
 
 function addCart(id){
   let p = inventory.find(x=>x.id===id);
-
-  if(p.stock <= 0){
-    return alert('Sin stock');
-  }
+  if(!p || p.stock<=0) return alert('Sin stock');
 
   cart.push(p);
   saveCart();
-  document.getElementById('cartCount').innerText = cart.length;
+  cartCount.innerText = cart.length;
 }
 
 function renderCart(){
-  let div = document.getElementById('cart');
-  let total = 0;
-  div.innerHTML = '';
-
+  let total=0;
+  cart.innerHTML='';
   cart.forEach((p,i)=>{
-    total += p.price;
-    div.innerHTML += `
+    total+=p.price;
+    cart.innerHTML+=`
     <div class="card">
       ${p.name} - $${p.price}
-      <button onclick="removeCart(${i})">Quitar</button>
+      <button onclick="removeCart(${i})">X</button>
     </div>`;
   });
-
-  document.getElementById('total').innerText = 'Total: $' + total;
+  totalDiv.innerText = "Total: $" + total;
 }
 
 function removeCart(i){
   cart.splice(i,1);
   saveCart();
-  document.getElementById('cartCount').innerText = cart.length;
   renderCart();
+  cartCount.innerText = cart.length;
 }
 
 function checkout(){
-  if(cart.length === 0){
-    return alert('Carrito vacío');
-  }
-
-  cart.forEach(item=>{
-    let p = inventory.find(x=>x.id === item.id);
-    if(p && p.stock > 0){
-      p.stock--;
-    }
-  });
-
-  save();
-  cart = [];
+  alert('Compra hecha 🔥');
+  cart=[];
   saveCart();
-
-  document.getElementById('cartCount').innerText = 0;
-
-  alert('Compra realizada 🧾🔥');
+  cartCount.innerText=0;
   show('shop');
 }
+
 </script>
 
 </body>
