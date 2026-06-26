@@ -1,435 +1,620 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title> Avocado Garden </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avocado Garden</title>
 
-<style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-/* RESET */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+  <style>
+    /* VARIABLES DE DISEÑO */
+    :root {
+      --primary-color: #2e7d32;
+      --primary-hover: #1b5e20;
+      --bg-dark-90: rgba(15, 23, 42, 0.9);
+      --bg-glass: rgba(255, 255, 255, 0.1);
+      --border-glass: rgba(255, 255, 255, 0.15);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --transition: all 0.25s ease;
+    }
 
-/* FONDO */
-body{
-  font-family:'Segoe UI', sans-serif;
-  background:
-    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-    url('avocado.jpg') no-repeat center center fixed;
-  background-size: cover;
-  min-height:100vh;
-  overflow-x:hidden;
-}
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-#menuToggle{
-  position: fixed;
-  top:15px;
-  left:15px;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: 
+        linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), 
+        url('avocado.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
 
-  width:75px;
-  height:75px;
+    /* MENU TOGGLE */
+    #menuToggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      z-index: 1000;
+      transition: var(--transition);
+      box-shadow: var(--shadow-md);
+    }
 
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+    #menuToggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
 
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(12px);
+    #menuToggle img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
 
-  border-radius:18px;
+    /* SIDEBAR (GLASSMORPHISM) */
+    aside {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--bg-dark-90);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-glass);
+      padding: 40px 24px;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
-  cursor:pointer;
-  z-index:1000;
+    aside.active {
+      transform: translateX(0);
+    }
 
-  transition:0.3s;
-}
+    aside h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #fff;
+    }
 
-#menuToggle:hover{
-  transform:scale(1.08);
-}
+    #rol {
+      font-size: 0.85rem;
+      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 6px 12px;
+      border-radius: 20px;
+      align-self: flex-start;
+      margin-bottom: 20px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
 
-/* 🔥 ICONO LIMPIO */
-#menuToggle img{
-  width:80px;
-  height:80px;
-  object-fit:contain;
+    /* BOTONES */
+    button {
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
 
-  /* 💀 ESTO QUITA FONDOS FEOS */
-  mix-blend-mode: multiply;
+    aside button {
+      background: transparent;
+      color: #cbd5e1;
+      text-align: left;
+      display: flex;
+      align-items: center;
+    }
 
-  margin-bottom:5px;
-}
+    aside button:hover {
+      background: var(--bg-glass);
+      color: #fff;
+      padding-left: 25px;
+    }
 
-/* TEXTO */
-#menuToggle p{
-  margin:0;
-  font-size:12px;
-  color:white;
-}
-/* OVERLAY */
-#overlay{
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
-  opacity:0;
-  visibility:hidden;
-  transition:0.3s;
-  z-index:998;
-}
-#overlay.active{
-  opacity:1;
-  visibility:visible;
-}
+    aside button:last-of-type {
+      margin-top: auto;
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+    }
 
-/* SIDEBAR */
-aside{
-  position: fixed;
-  width:260px;
-  height:100vh;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(12px);
-  color:white;
-  padding:20px;
-  transform:translateX(-100%);
-  transition:0.3s;
-  z-index:999;
-  box-shadow:5px 0 20px rgba(0,0,0,0.4);
-}
-aside.active{
-  transform:translateX(0);
-}
-aside h3{ margin-bottom:10px; }
-aside p{
-  font-size:14px;
-  opacity:0.8;
-  margin-bottom:15px;
-}
-aside button{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border:none;
-  border-radius:12px;
-  background: rgba(255,255,255,0.08);
-  color:white;
-  cursor:pointer;
-  transition:0.3s;
-}
-aside button:hover{
-  background: linear-gradient(135deg,#2ecc71,#27ae60);
-  transform:translateX(5px);
-}
+    aside button:last-of-type:hover {
+      background: #ef4444;
+      color: white;
+    }
 
-/* CONTENIDO */
-main{
-  margin-top:80px;
-  padding:20px;
-  width:100%;
-}
+    /* MAIN CONTENT */
+    main {
+      margin-top: 100px;
+      padding: 20px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeIn 0.4s ease;
+    }
 
-/* CARDS PRO */
-.card{
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  padding:15px;
-  margin:10px 0;
-  border-radius:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  color:white;
-  box-shadow:0 5px 15px rgba(0,0,0,0.3);
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* LOGIN  */
-#login{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(15px);
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
-  color:white;
-  box-shadow:0 10px 30px rgba(0,0,0,0.4);
-}
-#login input{
-  width:200px;
-  padding:10px;
-  margin:8px;
-  border:none;
-  border-radius:10px;
-}
-#login button{
-  padding:10px 20px;
-  border:none;
-  border-radius:10px;
-  background:#27ae60;
-  color:white;
-  cursor:pointer;
-}
+    .view-header {
+      margin-bottom: 30px;
+    }
 
-/* ANIMACIÓN */
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
-}
+    .view-header h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
 
-</style>
+    /* SECCIÓN TIENDA / BUSCADOR */
+    .search-container {
+      position: relative;
+      margin-bottom: 35px;
+      max-width: 450px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: #fff;
+    }
+
+    /* GRID DE PRODUCTOS */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 25px;
+    }
+
+    /* TARJETA DE PRODUCTO PROFESIONAL */
+    .card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-img-wrapper {
+      width: 100%;
+      height: 200px;
+      background: #f1f5f9;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .card:hover img {
+      transform: scale(1.08);
+    }
+
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .card h4 {
+      color: var(--text-main);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .card .stock-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 15px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .price {
+      color: var(--primary-color);
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    /* Botón añadir al carrito */
+    .btn-add {
+      background: var(--primary-color);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-add:hover {
+      background: var(--primary-hover);
+      transform: scale(1.1);
+    }
+
+    /* FORMULARIOS DE INVENTARIO Y CARRITO EN LÍNEA */
+    .form-group {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-glass);
+      margin-bottom: 30px;
+      max-width: 500px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .form-group button {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    /* TEXTOS DE VISTA HOME */
+    .home-view {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(8px);
+    }
+
+    .home-view h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+      max-width: 200px;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+      }
+      .card-img-wrapper { height: 150px; }
+      .home-view h1 { font-size: 2.2rem; }
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="overlay" onclick="toggleMenu()"></div>
-
 <div id="menuToggle" onclick="toggleMenu()">
-  <img src="icono.png" class="menu-icon">
-  <p>Menú</p>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 </div>
 
 <aside id="menu">
-  <h3>Contenido Garden</h3>
+  <h3>Avocado Garden</h3>
   <p id="rol"></p>
   <button onclick="show('home')">Inicio</button>
-  <button id="invBtn" onclick="show('inventory')">Inventario</button>
+  <button onclick="show('inventory')" id="invBtn">Inventario</button>
   <button onclick="show('shop')">Tienda</button>
   <button onclick="show('cart')">Carrito (<span id="cartCount">0</span>)</button>
-  <button onclick="showLogin()">Admin</button>
   <button onclick="logout()">Salir</button>
 </aside>
-
-<div id="login" style="display:none;">
-  <h2>Login</h2>
-  <input id="userInput" placeholder="Usuario"><br>
-  <input id="pass" type="password" placeholder="Contraseña"><br>
-  <button onclick="login()">Entrar</button>
-</div>
 
 <main id="content"></main>
 
 <script>
 
-let user = JSON.parse(localStorage.getItem('user')) || {r:'Cliente'};
-let inventory = JSON.parse(localStorage.getItem('inv')) || [];
+/* DATA */
+let user = JSON.parse(localStorage.getItem('user')) || {r:'Administrador'}; // Cambia a 'Cliente' para probar vistas
+let inventory = JSON.parse(localStorage.getItem('inv')) || [
+  {id: 1, name: "Aguacate Hass Premium", price: 4500, stock: 15},
+  {id: 2, name: "Aguacate Lorena Fino", price: 3800, stock: 8},
+  {id: 3, name: "Kit de Semillas Orgánicas", price: 12000, stock: 20}
+];
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-const users = [
-  {u:'admin',p:'123',r:'Administrador'},
-  {u:'cliente',p:'123',r:'Cliente'}
-];
+/* ELEMENTOS */
+const menu = document.getElementById('menu');
+const content = document.getElementById('content');
+const cartCount = document.getElementById('cartCount');
+const rol = document.getElementById('rol');
+const invBtn = document.getElementById('invBtn');
 
-function toggleMenu(){
-  menu.classList.toggle('active');
-  overlay.classList.toggle('active');
-}
-
-function save(){ localStorage.setItem('inv', JSON.stringify(inventory)); }
-function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); }
-function saveUser(){ localStorage.setItem('user', JSON.stringify(user)); }
-
-window.onload = function(){
+/* INIT */
+window.onload = () => {
   rol.innerText = "Modo: " + user.r;
   cartCount.innerText = cart.length;
   invBtn.style.display = user.r === 'Cliente' ? 'none' : 'block';
   show('home');
 };
 
-/* LOGIN */
-function showLogin(){ login.style.display='block'; }
+/* MENU */
+function toggleMenu() {
+  menu.classList.toggle('active');
+}
 
-function login(){
-  let u = userInput.value;
-  let p = pass.value;
-  let found = users.find(x=>x.u===u && x.p===p);
-
-  if(found){
-    user = found;
-    saveUser();
-    location.reload();
-  }else{
-    alert('Error');
+// Cerrar menú al hacer click afuera (Mejora UX)
+document.addEventListener('click', (e) => {
+  if (!menu.contains(e.target) && !document.getElementById('menuToggle').contains(e.target)) {
+    menu.classList.remove('active');
   }
-}
-
-function logout(){
-  localStorage.removeItem('user');
-  location.reload();
-}
+});
 
 /* VISTAS */
-function show(view){
-  let c = content;
+function show(view) {
+  menu.classList.remove('active'); // Cierra el menú al navegar
 
-  
-   if(view==='home'){
-  c.innerHTML = `
-  <div style="
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:80vh;
-    width:100%;
-  ">
-    
-    <div style="
-      width:90%;
-      max-width:500px;
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(18px);
-      padding:40px;
-      border-radius:25px;
-      text-align:center;
-      animation:fadeIn 0.5s;
-      color:white;
-      box-shadow:0 15px 40px rgba(0,0,0,0.5);
-    ">
+  if (view === 'home') {
+    content.innerHTML = `
+      <div class="home-view">
+        <h1>Avocado Garden</h1>
+        <p style="margin-bottom: 30px; color: #e2e8f0;">Los mejores productos frescos y orgánicos directos a tu puerta.</p>
+        <button class="btn-primary" onclick="show('shop')">Explorar Tienda</button>
+      </div>
+    `;
+  }
 
-      <img src="icono.png" style="
-        width:200px;
-        height:200px;
-        object-fit:cover;
-        border-radius:20px;
-        margin-bottom:15px;
-      ">
-
-      <h1 style="font-size:28px;margin-bottom:10px;">
-         Avocado Garden
-      </h1>
-
-      <p style="opacity:0.8;font-size:16px;">
-        Bienvenido ${user.r}
-      </p>
-
-      <button onclick="show('shop')" style="
-        margin-top:20px;
-        padding:15px;
-        font-size:16px;
-        border:none;
-        border-radius:15px;
-        background:linear-gradient(135deg,#2ecc71,#27ae60);
-        color:white;
-        cursor:pointer;
-        width:100%;
-      ">
-        Ir a tienda 
-      </button>
-
-    </div>
-
-  </div>`;
-}
-
-  if(view==='inventory' && user.r!=='Cliente'){
-    c.innerHTML = `
-    <h2 style="color:white;">Inventario</h2>
-    <input id="n" placeholder="Nombre">
-    <input id="p" type="number" placeholder="Precio">
-    <input id="s" type="number" placeholder="Stock">
-    <button onclick="addProduct()">Agregar</button>
-    <div id="inv"></div>`;
+  if (view === 'inventory' && user.r !== 'Cliente') {
+    content.innerHTML = `
+      <div class="view-header">
+        <h2>Gestión de Inventario</h2>
+      </div>
+      <div class="form-group">
+        <h4 style="margin-bottom:15px; color: #fff;">Añadir Nuevo Producto</h4>
+        <input id="n" placeholder="Nombre del Producto">
+        <input id="p" type="number" placeholder="Precio ($)">
+        <input id="s" type="number" placeholder="Stock disponible">
+        <button onclick="addProduct()">Agregar al Sistema</button>
+      </div>
+      <div class="grid" id="inv"></div>
+    `;
     renderInventory();
   }
 
-  if(view==='shop'){
-    c.innerHTML = `<h2 style="color:white;">Tienda</h2><div id="shop"></div>`;
-    renderShop();
+  if (view === 'shop') {
+    content.innerHTML = `
+      <div class="view-header">
+        <h2>Nuestra Tienda</h2>
+        <p style="color: #cbd5e1;">Selecciona los mejores aguacates y accesorios</p>
+      </div>
+      <div class="search-container">
+        <input class="search-input" placeholder="¿Qué estás buscando hoy?..." onkeyup="filterProducts(this.value)">
+      </div>
+      <div class="grid" id="products"></div>
+    `;
+    renderProducts(inventory);
   }
 
-  if(view==='cart'){
-    c.innerHTML = `
-    <h2 style="color:white;">Carrito</h2>
-    <div id="cart"></div>
-    <div class="total" id="totalDiv"></div>
-    <button onclick="checkout()">Comprar</button>`;
+  if (view === 'cart') {
+    content.innerHTML = `
+      <div class="view-header">
+        <h2>Tu Carrito de Compras</h2>
+      </div>
+      <div class="grid" id="cart" style="margin-bottom: 30px;"></div>
+      <div style="max-width: 300px;">
+        <button class="btn-primary" onclick="checkout()">Confirmar Compra</button>
+      </div>
+    `;
     renderCart();
   }
 }
 
-/* FUNCIONES */
-function addProduct(){
-  let name = document.getElementById('n').value;
-  let price = parseInt(document.getElementById('p').value);
-  let stock = parseInt(document.getElementById('s').value);
+/* INVENTARIO */
+function addProduct() {
+  const n = document.getElementById('n');
+  const p = document.getElementById('p');
+  const s = document.getElementById('s');
 
-  if(!name || !price || !stock) return alert('Completa todo');
+  let name = n.value;
+  let price = parseInt(p.value) || 0;
+  let stock = parseInt(s.value) || 0;
 
-  inventory.push({id:Date.now(), name, price, stock});
-  save();
+  if(!name || price <= 0) {
+    alert("Por favor introduce datos válidos.");
+    return;
+  }
+
+  inventory.push({ id: Date.now(), name, price, stock });
+  localStorage.setItem('inv', JSON.stringify(inventory));
   renderInventory();
+  
+  // Limpiar campos
+  n.value = ''; p.value = ''; s.value = '';
 }
 
-function renderInventory(){
-  inv.innerHTML='';
-  inventory.forEach(p=>{
-    inv.innerHTML+=`
-    <div class="card">
-      ${p.name} - $${p.price}
-      <button onclick="del(${p.id})">❌</button>
-    </div>`;
+function renderInventory() {
+  const invContainer = document.getElementById('inv');
+  invContainer.innerHTML = '';
+  
+  if(inventory.length === 0) {
+    invContainer.innerHTML = `<p style="color: #cbd5e1;">No hay productos en el inventario.</p>`;
+    return;
+  }
+
+  inventory.forEach(p => {
+    invContainer.innerHTML += `
+      <div class="card">
+        <div class="card-body">
+          <h4>${p.name}</h4>
+          <p class="stock-tag">Stock: ${p.stock} unidades</p>
+          <div class="card-footer">
+            <div class="price">$${p.price.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>`;
   });
 }
 
-function del(id){
-  inventory = inventory.filter(p=>p.id!==id);
-  save();
-  renderInventory();
-}
+/* TIENDA */
+function renderProducts(list) {
+  let container = document.getElementById('products');
+  container.innerHTML = '';
 
-function renderShop(){
-  shop.innerHTML='';
-  inventory.forEach(p=>{
-    shop.innerHTML+=`
-    <div class="card">
-      ${p.name} - $${p.price}
-      <button onclick="addCart(${p.id})">Agregar</button>
-    </div>`;
+  if(list.length === 0) {
+    container.innerHTML = `<p style="color: #cbd5e1; grid-column: 1/-1;">No se encontraron productos.</p>`;
+    return;
+  }
+
+  list.forEach(p => {
+    container.innerHTML += `
+      <div class="card">
+        <div class="card-img-wrapper">
+          <img src="avocado.jpg" alt="${p.name}">
+        </div>
+        <div class="card-body">
+          <h4>${p.name}</h4>
+          <p class="stock-tag">Disponibles: ${p.stock}</p>
+          <div class="card-footer">
+            <div class="price">$${p.price.toLocaleString()}</div>
+            <button class="btn-add" onclick="addCart(${p.id})">+</button>
+          </div>
+        </div>
+      </div>
+    `;
   });
 }
 
-function addCart(id){
-  let p = inventory.find(x=>x.id===id);
-  if(!p || p.stock<=0) return alert('Sin stock');
-
-  cart.push(p);
-  saveCart();
-  cartCount.innerText = cart.length;
+function filterProducts(text) {
+  let filtered = inventory.filter(p =>
+    p.name.toLowerCase().includes(text.toLowerCase())
+  );
+  renderProducts(filtered);
 }
 
-function renderCart(){
-  let total=0;
-  cart.innerHTML='';
-  cart.forEach((p,i)=>{
-    total+=p.price;
-    cart.innerHTML+=`
-    <div class="card">
-      ${p.name} - $${p.price}
-      <button onclick="removeCart(${i})">X</button>
-    </div>`;
+/* CARRITO */
+function addCart(id) {
+  let p = inventory.find(x => x.id === id);
+  if(p) {
+    cart.push(p);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    cartCount.innerText = cart.length;
+  }
+}
+
+function renderCart() {
+  let c = document.getElementById('cart');
+  c.innerHTML = '';
+
+  if(cart.length === 0) {
+    c.innerHTML = `<p style="color: #cbd5e1; grid-column: 1/-1;">Tu carrito está vacío.</p>`;
+    return;
+  }
+
+  cart.forEach(p => {
+    c.innerHTML += `
+      <div class="card">
+        <div class="card-body">
+          <h4>${p.name}</h4>
+          <div class="card-footer">
+            <div class="price">$${p.price.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>`;
   });
-  totalDiv.innerText = "Total: $" + total;
 }
 
-function removeCart(i){
-  cart.splice(i,1);
-  saveCart();
-  renderCart();
-  cartCount.innerText = cart.length;
-}
-
-function checkout(){
-  alert('Compra hecha 🔥');
-  cart=[];
-  saveCart();
-  cartCount.innerText=0;
+function checkout() {
+  if(cart.length === 0) {
+    alert('El carrito está vacío');
+    return;
+  }
+  alert('¡Compra realizada con éxito! Gracias por tu preferencia.');
+  cart = [];
+  localStorage.setItem('cart', JSON.stringify(cart));
+  cartCount.innerText = 0;
   show('shop');
+}
+
+/* LOGOUT */
+function logout() {
+  localStorage.clear();
+  location.reload();
 }
 
 </script>
