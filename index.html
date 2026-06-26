@@ -70,12 +70,6 @@
       transform: translateY(-2px);
     }
 
-    #menuToggle img {
-      width: 32px;
-      height: 32px;
-      object-fit: contain;
-    }
-
     /* SIDEBAR (GLASSMORPHISM) */
     aside {
       position: fixed;
@@ -214,7 +208,7 @@
       gap: 25px;
     }
 
-    /* TARJETA DE PRODUCTO PROFESIONAL */
+    /* TARJETA DE PRODUCTO */
     .card {
       background: #ffffff;
       border-radius: var(--radius-lg);
@@ -234,7 +228,7 @@
     .card-img-wrapper {
       width: 100%;
       height: 200px;
-      background: #f1f5f9;
+      background: #e2e8f0;
       overflow: hidden;
       position: relative;
     }
@@ -307,7 +301,7 @@
       transform: scale(1.1);
     }
 
-    /* FORMULARIOS DE INVENTARIO Y CARRITO EN LÍNEA */
+    /* FORMULARIOS DE INVENTARIO */
     .form-group {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
@@ -325,6 +319,7 @@
       border-radius: var(--radius-md);
       border: 1px solid transparent;
       outline: none;
+      font-family: 'Poppins', sans-serif;
     }
 
     .form-group button {
@@ -358,14 +353,12 @@
       transform: translateY(-2px);
     }
 
-    /* RESPONSIVE */
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 15px;
       }
       .card-img-wrapper { height: 150px; }
-      .home-view h1 { font-size: 2.2rem; }
     }
   </style>
 </head>
@@ -390,13 +383,24 @@
 
 <script>
 
-/* DATA */
-let user = JSON.parse(localStorage.getItem('user')) || {r:'Administrador'}; // Cambia a 'Cliente' para probar vistas
-let inventory = JSON.parse(localStorage.getItem('inv')) || [
-  {id: 1, name: "Aguacate Hass Premium", price: 4500, stock: 15},
-  {id: 2, name: "Aguacate Lorena Fino", price: 3800, stock: 8},
-  {id: 3, name: "Kit de Semillas Orgánicas", price: 12000, stock: 20}
+/* DATA CON IMÁGENES PERSONALIZADAS */
+let user = JSON.parse(localStorage.getItem('user')) || null; 
+
+// Definimos el inventario base correcto con los archivos de tu carpeta
+const initialInventory = [
+  {id: 1, name: "Aguacate Hass Premium", price: 4500, stock: 15, image: "avocado.jpg"},
+  {id: 2, name: "Aguacate Lorena Fino", price: 6500, stock: 8, image: "papelillo.jpg"},
+  {id: 3, name: "Kit de Semillas Orgánicas", price: 12000, stock: 20, image: "icono.png"},
+  {id: 4, name: "Limonada de Aguacate", price: 4000, stock: 20, image: "olimonada.jpg"},
 ];
+
+// Forzamos la actualización basándonos en una clave limpia para evitar conflictos con datos rotos antiguos
+if (!localStorage.getItem('v2_products_loaded')) {
+  localStorage.setItem('inv', JSON.stringify(initialInventory));
+  localStorage.setItem('v2_products_loaded', 'true');
+}
+
+let inventory = JSON.parse(localStorage.getItem('inv')) || initialInventory;
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 /* ELEMENTOS */
@@ -405,13 +409,20 @@ const content = document.getElementById('content');
 const cartCount = document.getElementById('cartCount');
 const rol = document.getElementById('rol');
 const invBtn = document.getElementById('invBtn');
+const menuToggle = document.getElementById('menuToggle');
 
 /* INIT */
 window.onload = () => {
-  rol.innerText = "Modo: " + user.r;
-  cartCount.innerText = cart.length;
-  invBtn.style.display = user.r === 'Cliente' ? 'none' : 'block';
-  show('home');
+  if (!user) {
+    menuToggle.style.display = 'none';
+    show('login');
+  } else {
+    menuToggle.style.display = 'flex';
+    rol.innerText = "Modo: " + user.r;
+    cartCount.innerText = cart.length;
+    invBtn.style.display = user.r === 'Cliente' ? 'none' : 'block';
+    show('home');
+  }
 };
 
 /* MENU */
@@ -419,7 +430,6 @@ function toggleMenu() {
   menu.classList.toggle('active');
 }
 
-// Cerrar menú al hacer click afuera (Mejora UX)
 document.addEventListener('click', (e) => {
   if (!menu.contains(e.target) && !document.getElementById('menuToggle').contains(e.target)) {
     menu.classList.remove('active');
@@ -428,7 +438,21 @@ document.addEventListener('click', (e) => {
 
 /* VISTAS */
 function show(view) {
-  menu.classList.remove('active'); // Cierra el menú al navegar
+  menu.classList.remove('active'); 
+
+  if (view === 'login') {
+    content.innerHTML = `
+      <div class="home-view" style="max-width: 400px; margin: 40px auto 0 auto;">
+        <h1 style="font-size: 2.2rem; margin-bottom: 10px;">Avocado Garden</h1>
+        <p style="margin-bottom: 30px; color: #cbd5e1;">Selecciona tu modo de ingreso</p>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <button class="btn-primary" style="max-width: 100%; background: #0284c7;" onclick="loginAs('Cliente')">Ingresar como Cliente</button>
+          <button class="btn-primary" style="max-width: 100%; background: var(--primary-color);" onclick="loginAs('Administrador')">Ingresar como Administrador</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   if (view === 'home') {
     content.innerHTML = `
@@ -450,6 +474,7 @@ function show(view) {
         <input id="n" placeholder="Nombre del Producto">
         <input id="p" type="number" placeholder="Precio ($)">
         <input id="s" type="number" placeholder="Stock disponible">
+        <input id="imgUrl" placeholder="URL de la Imagen (ej: imagen.jpg)">
         <button onclick="addProduct()">Agregar al Sistema</button>
       </div>
       <div class="grid" id="inv"></div>
@@ -485,27 +510,41 @@ function show(view) {
   }
 }
 
+/* LOGIN */
+function loginAs(role) {
+  const sessionUser = { r: role };
+  localStorage.setItem('user', JSON.stringify(sessionUser));
+  
+  user = sessionUser;
+  rol.innerText = "Modo: " + user.r;
+  invBtn.style.display = user.r === 'Cliente' ? 'none' : 'block';
+  menuToggle.style.display = 'flex';
+  
+  show('home');
+}
+
 /* INVENTARIO */
 function addProduct() {
   const n = document.getElementById('n');
   const p = document.getElementById('p');
   const s = document.getElementById('s');
+  const imgUrl = document.getElementById('imgUrl');
 
   let name = n.value;
   let price = parseInt(p.value) || 0;
   let stock = parseInt(s.value) || 0;
+  let image = imgUrl.value.trim() !== "" ? imgUrl.value.trim() : "avocado.jpg"; 
 
   if(!name || price <= 0) {
     alert("Por favor introduce datos válidos.");
     return;
   }
 
-  inventory.push({ id: Date.now(), name, price, stock });
+  inventory.push({ id: Date.now(), name, price, stock, image });
   localStorage.setItem('inv', JSON.stringify(inventory));
   renderInventory();
   
-  // Limpiar campos
-  n.value = ''; p.value = ''; s.value = '';
+  n.value = ''; p.value = ''; s.value = ''; imgUrl.value = '';
 }
 
 function renderInventory() {
@@ -520,6 +559,9 @@ function renderInventory() {
   inventory.forEach(p => {
     invContainer.innerHTML += `
       <div class="card">
+        <div class="card-img-wrapper">
+          <img src="${p.image}" alt="${p.name}">
+        </div>
         <div class="card-body">
           <h4>${p.name}</h4>
           <p class="stock-tag">Stock: ${p.stock} unidades</p>
@@ -531,7 +573,7 @@ function renderInventory() {
   });
 }
 
-/* TIENDA */
+/* TIENDA REAL CON IMAGEN DINÁMICA */
 function renderProducts(list) {
   let container = document.getElementById('products');
   container.innerHTML = '';
@@ -545,7 +587,7 @@ function renderProducts(list) {
     container.innerHTML += `
       <div class="card">
         <div class="card-img-wrapper">
-          <img src="avocado.jpg" alt="${p.name}">
+          <img src="${p.image}" alt="${p.name}">
         </div>
         <div class="card-body">
           <h4>${p.name}</h4>
@@ -589,6 +631,9 @@ function renderCart() {
   cart.forEach(p => {
     c.innerHTML += `
       <div class="card">
+        <div class="card-img-wrapper" style="height: 120px;">
+          <img src="${p.image}" alt="${p.name}">
+        </div>
         <div class="card-body">
           <h4>${p.name}</h4>
           <div class="card-footer">
@@ -604,16 +649,15 @@ function checkout() {
     alert('El carrito está vacío');
     return;
   }
-  alert('¡Compra realizada con éxito! Gracias por tu preferencia.');
+  alert('¡Compra realizada con éxito!');
   cart = [];
   localStorage.setItem('cart', JSON.stringify(cart));
   cartCount.innerText = 0;
   show('shop');
 }
 
-/* LOGOUT */
 function logout() {
-  localStorage.clear();
+  localStorage.removeItem('user'); // Solo destruimos la sesión del usuario
   location.reload();
 }
 
